@@ -1,0 +1,46 @@
+1) Generate SSH keys
+
+:Linux + macOS
+Open a shell, and type the following:
+ssh-keygen -t rsa
+
+:Windows
+Open PowerShell and run the following:
+ssh-keygen
+The keys will be generated in the specified directory, usually C:\Users\Your_Username/.ssh. You will be prompted to create a passphrase, but it isn't required.
+
+To add the keys to the local Windows 10 keystore, run the following:
+Start-Service ssh-agent
+ssh-add .\.ssh\id_rsa
+
+
+2) Copy the public key to the remote server
+
+:Linux + macOS
+scp ~/.ssh/id_rsa.pub $USER@$REMOTE:destination
+
+:Windows
+PowerShell doesn't have a file transfer protocol built into it. You will need to move the public key to the remote server using a third-party application like PuTTY or WinSCP.
+
+
+3) SSH to the remote server and configure your key
+ssh $USER@$REMOTE
+This should be the last time you have to enter your password.
+
+Now we'll need to move the contents of our public key to a new location, and delete the original key file.
+
+cat id_rsa.pub >> .ssh/authorized_keys
+rm id_rsa.pub
+*You might need to create the .ssh directory. If so, run the following before the commands above:
+mkdir .ssh
+
+It's essential that .ssh and authorized_keys have the correct set of permissions, otherwise login will fail.
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+
+logout
+
+
+4) Testing
+Next time you SSH in to this remote machine, you should not be prompted for a password!
+ssh $USER@$REMOTE
